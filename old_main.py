@@ -128,7 +128,7 @@ class TriageResult(BaseModel):
 
 # Support agent for handling customer support queries
 support_agent = Agent(
-    'openai:gpt-4o-mini',
+    'gemini-1.5-flash',
     deps_type=SupportDependencies,
     result_type=SupportResult,
     system_prompt="""
@@ -163,7 +163,7 @@ async def customer_balance(
 # Loan agent for handling loan-related queries
 
 loan_agent = Agent(
-    'openai:gpt-4o-mini',
+    'gemini-1.5-flash',
     deps_type=LoanDependencies,
     result_type=LoanResult,
     system_prompt="""
@@ -220,7 +220,7 @@ async def capture_customer_name(ctx: RunContext[SupportDependencies], customer_n
 
 # Triage agent to direct customer queries to the appropriate department
 triage_agent = Agent(
-    'openai:gpt-4o-mini',
+    'gemini-1.5-flash',
     deps_type=TriageDependencies,
     system_prompt=(
         'You are a triage agent in our bank, responsible for directing customer queries to the appropriate department. '
@@ -254,7 +254,7 @@ async def call_loan_agent(ctx: RunContext[TriageDependencies], prompt: str) -> R
 
 # Marketing agent for saving customer names
 marketing_agent = Agent(
-    'openai:gpt-4o-mini',
+    'openai:gemini-1.5-flash',
     deps_type=SupportDependencies,
     system_prompt=(
         'You are a marketing agent in our bank'

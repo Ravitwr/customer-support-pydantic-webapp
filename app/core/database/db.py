@@ -6,7 +6,7 @@ from app.core.config import settings
 EntityBase = declarative_base()
 
 engine = create_async_engine(
-    "postgresql+asyncpg://postgres:postgress@localhost:5432/postgres",
+    url=settings.DB_URL,
     pool_size=int(settings.DB_POOL_SIZE),
     max_overflow=int(settings.DB_MAX_OVERFLOW),
 )

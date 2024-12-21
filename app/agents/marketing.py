@@ -2,9 +2,10 @@ import csv
 import os
 from pydantic_ai import Agent
 from app.dependencies.dependencies import SupportDependencies
+from app.core.config import settings
 
 marketing_agent = Agent(
-    'openai:gpt-4o-mini',
+    settings.LLM_MODEL,
     deps_type=SupportDependencies,
     system_prompt=(
         'You are a marketing agent in our bank'
@@ -14,6 +15,7 @@ marketing_agent = Agent(
 
 @marketing_agent.tool_plain
 async def save_customer_name(customer_name: str, customer_id: int) -> None:
+    print(f"Saving customer name {customer_name} for ID {customer_id}")
     """Saves the customer's name and tracks how many times their info is captured."""
     csv_file_path = 'customer_name.csv'
 

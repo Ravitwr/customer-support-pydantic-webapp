@@ -1,11 +1,13 @@
 import uuid
 from pydantic_ai import Agent, RunContext
-from app.dependencies.dependencies import LoanDependencies
+from app.dependencies.dependencies import LoanDependencies, SupportDependencies
 from app.models.schemas import LoanResult
-from old_main import SupportDependencies
+from app.repositories.customer import get_customer_name
+from app.repositories.loan import add_loan, cancel_loan, get_loan_balance, get_loan_status
+from app.core.config import settings
 
 loan_agent = Agent(
-    'openai:gpt-4o-mini',
+    settings.LLM_MODEL,
     deps_type=LoanDependencies,
     result_type=LoanResult,
     system_prompt="""
@@ -21,33 +23,35 @@ loan_agent = Agent(
 )
 
 @loan_agent.tool()
-async def loan_status(ctx: RunContext[LoanDependencies]) -> str:
-    status = await ctx.deps.db.loan_status(id=ctx.deps.customer_id)
+async def _loan_status(ctx: RunContext[LoanDependencies]) -> str:
+    status = await get_loan_status(ctx.deps.db, id=ctx.deps.customer_id)
     return f'The loan status is {status!r}'
 
 @loan_agent.tool()
-async def cancel_loan(ctx: RunContext[LoanDependencies]) -> str:
-    return await ctx.deps.db.cancel_loan(id=ctx.deps.customer_id)
+async def _cancel_loan(ctx: RunContext[LoanDependencies]) -> str:
+    return await cancel_loan(ctx.deps.db, id=ctx.deps.customer_id)
 
 @loan_agent.tool()
-async def add_loan(ctx: RunContext[LoanDependencies], amount: float, interest_rate: float) -> str:
-    return await ctx.deps.db.add_loan(id=ctx.deps.customer_id, amount=amount, interest_rate=interest_rate)
+async def _add_loan(ctx: RunContext[LoanDependencies], amount: float, interest_rate: float) -> str:
+    print(ctx.deps.customer_id)
+    print(f"Adding loan of {amount} for customer {ctx.deps.customer_id}")
+    return await add_loan(ctx.deps.db, id=ctx.deps.customer_id, amount=amount, interest_rate=interest_rate)
 
 @loan_agent.tool()
-async def loan_balance(ctx: RunContext[LoanDependencies]) -> float:
-    return await ctx.deps.db.loan_balance(id=ctx.deps.customer_id)
+async def _loan_balance(ctx: RunContext[LoanDependencies]) -> float:
+    return await get_loan_balance(ctx.deps.db, id=ctx.deps.customer_id)
 
 @loan_agent.tool
-async def capture_customer_name(ctx: RunContext[SupportDependencies], customer_name: str) -> str:
+async def _capture_customer_name(ctx: RunContext[LoanDependencies], customer_name: str) -> str:
     """Capture the customer's name for marketing purposes."""
-
+    print(f"Capturing customer name {customer_name} for ID {ctx.deps.customer_id}")
     await ctx.deps.marketing_agent.run(f"Save customer name {customer_name} for ID {ctx.deps.customer_id}", deps=ctx.deps)
 
     tracking_id = str(uuid.uuid4())
     return tracking_id
 
 @loan_agent.system_prompt
-async def add_customer_name(ctx: RunContext[LoanDependencies]) -> str:
-    customer_name = await ctx.deps.db.customer_name(id=ctx.deps.customer_id)
+async def _get_customer_name(ctx: RunContext[LoanDependencies]) -> str:
+    customer_name = await get_customer_name(ctx.deps.db, id=ctx.deps.customer_id)
     return f"The customer's name is {customer_name!r}"
 

@@ -2,9 +2,11 @@ import uuid
 from pydantic_ai import Agent, RunContext
 from app.dependencies.dependencies import SupportDependencies
 from app.models.schemas import SupportResult
+from app.repositories.customer import get_customer_balance
+from app.core.config import settings
 
 support_agent = Agent(
-    'openai:gpt-4o-mini',
+    settings.LLM_MODEL,
     deps_type=SupportDependencies,
     result_type=SupportResult,
     system_prompt="""
@@ -17,24 +19,21 @@ support_agent = Agent(
 )
 
 @support_agent.tool()
-async def block_card(ctx: RunContext[SupportDependencies] , customer_name: str ) -> str:
+async def _block_card(ctx: RunContext[SupportDependencies] , customer_name: str ) -> str:
     return f"I'm sorry to hear that, {customer_name}. We are temporarily blocking your card to prevent unauthorized transactions."
 
 @support_agent.tool
-async def customer_balance(
-    ctx: RunContext[SupportDependencies], include_pending: bool
-) -> str:
+async def _customer_balance(ctx: RunContext[SupportDependencies]) -> str:
     """Returns the customer's current account balance."""
-    balance = await ctx.deps.db.customer_balance(
-        id=ctx.deps.customer_id,
-        include_pending=include_pending,
-    )
+    balance = await get_customer_balance(ctx.deps.db, id=ctx.deps.customer_id)
+    
     return f'${balance:.2f}'
 
 @support_agent.tool
-async def capture_customer_name(ctx: RunContext[SupportDependencies], customer_name: str) -> str:
+async def _capture_customer_name(ctx: RunContext[SupportDependencies], customer_name: str) -> str:
     """Capture the customer's name for marketing purposes."""
 
     await ctx.deps.marketing_agent.run(f"Save customer name {customer_name} for ID {ctx.deps.customer_id}", deps=ctx.deps)
 
     tracking_id = str(uuid.uuid4())
+    return tracking_id

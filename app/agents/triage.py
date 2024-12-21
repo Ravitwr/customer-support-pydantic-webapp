@@ -3,12 +3,11 @@ from pydantic_ai.result import RunResult
 from app.dependencies.dependencies import LoanDependencies, SupportDependencies, TriageDependencies
 from app.models.schemas import TriageResult
 from app.agents.marketing import marketing_agent
-from app.repositories.customer import DatabaseConn
-from app.repositories.loan import LoanDB
 from typing import Any
+from app.core.config import settings
 
 triage_agent = Agent(
-    'openai:gpt-4o-mini',
+    settings.LLM_MODEL,
     deps_type=TriageDependencies,
     system_prompt=(
         'You are a triage agent in our bank, responsible for directing customer queries to the appropriate department. '
@@ -23,15 +22,15 @@ triage_agent = Agent(
 )
 
 @triage_agent.tool
-async def call_support_agent(ctx: RunContext[TriageDependencies], prompt: str) -> RunResult[Any]:
+async def _call_support_agent(ctx: RunContext[TriageDependencies], prompt: str) -> RunResult[Any]:
     print(f"Calling support agent with prompt: {prompt}")
-    support_deps = SupportDependencies(customer_id=ctx.deps.customer_id, db=DatabaseConn(), marketing_agent=marketing_agent)
+    support_deps = SupportDependencies(customer_id=ctx.deps.customer_id, db=ctx.deps.db, marketing_agent=marketing_agent)
 
     return await ctx.deps.support_agent.run(prompt, deps=support_deps)
 
 @triage_agent.tool
-async def call_loan_agent(ctx: RunContext[TriageDependencies], quest: str) -> RunResult[Any]:
+async def _call_loan_agent(ctx: RunContext[TriageDependencies], quest: str) -> RunResult[Any]:
     print(f"Calling loan agent with prompt: {quest}")
-    loan_deps = LoanDependencies(customer_id=ctx.deps.customer_id, db=LoanDB(), marketing_agent=marketing_agent)
+    loan_deps = LoanDependencies(customer_id=ctx.deps.customer_id, db=ctx.deps.db, marketing_agent=marketing_agent)
 
     return await ctx.deps.loan_agent.run(quest, deps=loan_deps)
