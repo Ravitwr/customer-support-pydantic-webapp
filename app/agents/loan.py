@@ -1,6 +1,6 @@
 import uuid
 from pydantic_ai import Agent, RunContext
-from app.dependencies.loan import LoanDependencies
+from app.dependencies.dependencies import LoanDependencies
 from app.models.schemas import LoanResult
 from old_main import SupportDependencies
 
