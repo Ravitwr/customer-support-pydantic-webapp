@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "conten-creation"
+version = "0.1.0"
+description = ""
+authors = ["Ravitwr <ravitwr29@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pydantic-ai = "^0.0.14"
+python-dotenv = "^1.0.1"
+logfire = "^2.9.0"
+pydantic-settings = "^2.7.0"
+fastapi = "^0.115.6"
+uvicorn = "^0.34.0"
+sqlalchemy = "^2.0.36"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
