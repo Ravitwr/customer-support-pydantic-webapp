@@ -24,5 +24,7 @@ class Settings(BaseSettings):
     DB_POOL_SIZE:int
     DB_MAX_OVERFLOW:int
     LLM_MODEL:str
+    TYPEFULLY_API_KEY:str
+    TAVILY_API_KEY:str
 
 settings = Settings()  # type: ignore

@@ -1,0 +1,32 @@
+I want to create a AI Agent that can extract the contents of a list of URLs and create a twitter thread from it.
+
+Here is the tech stack:
+- FastAPI : This is the web framework I am using to create the API.
+- Pydantic AI : This is the library I am using to create the AI Agent.
+- Tavily : This is the library I am using to extract the contents of the URLs.
+- Typefully: This is the tool I am using to post to twitter. API doc is attached in the context.
+
+Flow:
+1. User will provide a list of URLs and the query and the request will go to the post route.
+2. The post route will call the extract_content_from_urls function to extract the contents of the URLs.
+3. The extract_content_from_urls function will call the Tavily API to extract the contents of the URLs.
+4. The Tavily API will return the contents of the URLs.
+5. The PostGenerator Agent will create the twitter thread from the contents.
+6. The Critics Agent will check the twitter thread and verify if it is relevant to the query, and give the relevent feedback.
+7. The Finalizer Agent will modify the twitter thread based on the feedback from the Critics Agent.
+8. The finalized twitter thread will be send back to the user from the post route.
+9. The user will finalize the twitter thread and click on Submit button and the request will come to post/submit route.
+10. The post/submit route will call the Typefully API to create the twitter thread.
+11. The Typefully API will return the twitter thread.
+12. The post/submit route will return the twitter thread.
+
+
+Folder Structure:
+-app/agents: This folder will contain the agents. For twitter we have agents/twitter folder.
+-app/services: This folder will contain the services.
+-app/routes: This folder will contain the routes.
+-app/utils: This folder will contain the utils.
+-app/models: This folder will contain the models.
+-app/config: This folder will contain the config.
+-app/main.py: This is the main file.
+
