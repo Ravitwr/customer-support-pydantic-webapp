@@ -33,16 +33,7 @@ def custom_openapi():
         servers=[{"url": "http://localhost:8080",
                   "description": "Local Development server"}],
     )
-    # openapi_schema["components"]["securitySchemes"] = {
-    #     "BearerAuth": {
-    #         "type": "http",
-    #         "scheme": "bearer",
-    #         "bearerFormat": "JWT",
-    #     }
-    # }
-    # # openapi_schema["security"] = [{"BearerAuth": []}]
 
-    # # type: ignore
     for _, method_item in openapi_schema.get("paths", {}).items():
         for _, param in method_item.items():
             responses = param.get("responses")
